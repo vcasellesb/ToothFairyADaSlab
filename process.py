@@ -13,7 +13,6 @@ from postprocess import process_all_probabilty_arrays, merge_all_3d_probability_
 from data_transformation import convert_image
 from batchgenerators.utilities.file_and_folder_operations import load_json
 import nibabel as nib
-from test_performance import get_dict_results, mean_dice_score
 import uuid
 
 from evalutils import SegmentationAlgorithm
@@ -183,24 +182,6 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
             print(e)
 
         return result
-
-    def test_performance(self, dir_labels_ground_truth='ground_truth', dir_nii_labs_AI='nii_labs'):
-        """
-        This is implemented just to report the performance of my algorithm based on the test set provided
-        by the organizers. Don't mind it.
-        """
-
-        labels_ai = [join(dir_nii_labs_AI, f) for f in 
-                     os.listdir(dir_nii_labs_AI) if f.endswith('finalissim.nii.gz')]
-        labels_ground_truth = [join(dir_labels_ground_truth, f) for f in 
-                               os.listdir(dir_labels_ground_truth) if f.endswith('.nii.gz')]
-        targets = self.targets
-
-        results_dict_test = get_dict_results(labels_ground_truth, labs_GT=labels_ai, targets=targets)
-        dice_score_final = mean_dice_score(results_dict=results_dict_test)
-
-        print(dice_score_final)
-        return dice_score_final
 
 if __name__ == "__main__":
 
