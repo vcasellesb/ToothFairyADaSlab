@@ -1,0 +1,7 @@
+models/
+output/
+test/
+working/
+*pychache*/
+*.gz
+.DS_Store
