@@ -51,7 +51,6 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
 
         self.models_dir = Path('/models/')
         self.targets = find_targets(input_path = self._input_path)
-        # self.dataset_properties = Path('models/dataset_fingerprint.json')
         if not self._output_path.exists():
             self._output_path.mkdir(parents=True)
 
@@ -59,8 +58,6 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
 
         input_nii, nii_filename = sitk2nii(input_image, wheretosave=join(self.working_dir, 'input', unique_folder_name))
         rotated_image = rotTFimage(input_nii, nii_filename)
-        
-        # dataset_fingerprint = load_json(self.dataset_properties)
 
         _, normalized_image = convert_image(image=rotated_image,
                                             image_name = nii_filename)
