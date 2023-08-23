@@ -2,17 +2,14 @@ from pathlib import Path
 import SimpleITK as sitk
 import torch
 import torch.nn as nn
-import torch
 from batchgenerators.utilities.file_and_folder_operations import join
 from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
 from preprocess import rotTFimage, split
 from utils import find_targets, sitk2nii, add_case_id, nii2sitk, checkup
-import os, time, shutil
+import os, time
 from reshape_arrays import reshape, turn3dto2d
 from postprocess import process_all_probabilty_arrays, merge_all_3d_probability_images, seg_maths_add_all_thr_masks, seg_maths_dil_ero, seg_maths_thr_per_axis, align_affines_between_mask_and_input, align_input_slice_with_predicted_array, align_input_image_affine_mask_affine_per_axis
 from data_transformation import convert_image
-from batchgenerators.utilities.file_and_folder_operations import load_json
-import nibabel as nib
 import uuid
 
 from evalutils import SegmentationAlgorithm
@@ -119,20 +116,6 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
         else:
             sitk_image_final = nii2sitk(eroed_final_image)
 
-
-                # The next code is used in case you want to obtain a segmentation from the default
-                # probability function from nnUNet
-
-                # target_dir = join(self._output_path, image, axis)
-                # if axis == "saggital":
-                #     reshape(target_dir, turn2dto3dsaggital)
-                # elif axis == "coronal":
-                #     reshape(target_dir, turn2dto3dcoronal)
-                # else:
-                #     pass
-                # print(f'merging axis {axis} for file {image}')
-                # merge_all_2d_images(join(target_dir), conf=axis, image_name=image)
-
         return sitk_image_final
         
     @torch.no_grad()
@@ -192,5 +175,3 @@ if __name__ == "__main__":
     end_time = time.time()
 
     print("Elapsed time:", end_time - start_time)
-
-    # Toothfairy_algorithm().test_performance()

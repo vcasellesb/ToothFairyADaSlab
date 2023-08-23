@@ -26,8 +26,6 @@ def rotTFimage(filename: Union[nib.Nifti1Image, str], save_path: str) -> nib.Nif
     rotated1=np.rot90(data, 3, axes=(0,2))
     rotated2=np.rot90(rotated1, 2)
     
-    # assert np.logical_and(rotated2.shape[0] >= rotated2.shape[1], 
-    #                       rotated2.shape[1] >= rotated2.shape[2]), "Hmmm something went wrong during rotation of input image. Maybe we shouldn't perform rotation?"
     rotated_img = nib.Nifti1Image(rotated2, affine=affine)
 
     nib.save(rotated_img, save_path)

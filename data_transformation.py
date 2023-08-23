@@ -23,14 +23,9 @@ def obtain_minmax_dataset(list_of_images: list):
     return np.median(mins), np.median(maxs)
 
 def normalize(image_array_to_normalize: np.array) -> np.ndarray:
-    # mean_intensity = dataset_properties['mean']
-    # std_intensity  = dataset_properties['std']
     lower_bound = 0
     upper_bound = 2048
-    # max_dataset = dataset_properties['max']
-    # min_dataset = dataset_properties['min']
     input_image_min, input_image_max = obtain_minmax_input_image(image_array_to_normalize)
-    # min_image_to_normalize, max_image_to_normalize = obtain_minmax_input_image(image_array_to_normalize)
     normalized_image_array = (((image_array_to_normalize - input_image_min)/(input_image_max - input_image_min)) 
                               * (upper_bound - lower_bound)) + lower_bound
     

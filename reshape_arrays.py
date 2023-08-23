@@ -2,7 +2,6 @@ import nibabel as nib
 import sys
 import os
 import numpy as np
-import shutil
 import subprocess
 from typing import Union
 
@@ -15,7 +14,6 @@ def turn3dto2d(image: Union[str, np.ndarray]) -> np.ndarray:
         nibimage = nib.load(image)
         data_array = nibimage.get_fdata()
         affine = nibimage.affine 
-        # aquí deixo el affine, de moment no el necessito (ara si que el necessito)
     elif isinstance(image, np.ndarray):
         data_array = image
         affine = np.eye(4)

@@ -122,13 +122,6 @@ def seg_maths_dil_ero(final_mask: str) -> str:
 
     return f'{final_mask.replace("_final.nii.gz", "_finalissim.nii.gz")}'
 
-
-def merge_all_3d_images(dir_with_images: str, conf, image_name) -> str:
-
-    subprocess.run('fslmerge' + f' {keys_merge[conf]}' + f' {dir_with_images+image_name}_merged.nii.gz' + f' {dir_with_images + "/*.nii.gz"}', shell=True)
-
-    return f'{dir_with_images+image_name}_merged.nii.gz'
-
 def check_affine_is_npeye(affine: np.ndarray) -> bool:
     return np.all(affine == np.eye(4))
 
