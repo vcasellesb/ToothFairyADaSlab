@@ -30,7 +30,7 @@ def rotTFimage(filename: Union[nib.Nifti1Image, str], save_path: str) -> nib.Nif
 
     nib.save(rotated_img, save_path)
 
-    return rotated_img
+    return rotated_img, save_path
 
 
 def rot_back_to_original_orientation(filename: Union[nib.Nifti1Image, str]) -> np.ndarray:

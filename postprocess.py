@@ -62,7 +62,7 @@ def align_input_slice_with_predicted_array(prob_niftis_in_3d: list, image_name, 
 
     for nifti in prob_niftis_in_3d:
         nifti_without_path = os.path.basename(nifti)
-        input_image = join(input_images_dir, image_name, 'image_normalized', axis,
+        input_image = join(input_images_dir, image_name, 'image', axis,
                            nifti_without_path.replace('_probability3d.nii.gz', '_0000.nii.gz'))
         
         command = (f'fslcpgeom {input_image} {nifti} -d')
@@ -107,7 +107,7 @@ def seg_maths_add_all_thr_masks(list_of_thr_masks: list, image_name: str) -> str
 
     assert len(list_of_thr_masks) == 3, f"There were more masks than there should be. I found {len(list_of_thr_masks)}"
 
-    command = f'seg_maths {list_of_thr_masks[0]} -add {list_of_thr_masks[1]} -add {list_of_thr_masks[2]} -thr 1.1 -bin {image_name}_final.nii.gz'
+    command = f'seg_maths {list_of_thr_masks[0]} -add {list_of_thr_masks[1]} -add {list_of_thr_masks[2]} -thr 1.5 -bin {image_name}_final.nii.gz'
 
     subprocess.run(command, shell=True)
 

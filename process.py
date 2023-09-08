@@ -9,7 +9,6 @@ from utils import find_targets, sitk2nii, add_case_id, nii2sitk, checkup
 import os, time
 from reshape_arrays import reshape, turn3dto2d
 from postprocess import process_all_probabilty_arrays, merge_all_3d_probability_images, seg_maths_add_all_thr_masks, seg_maths_dil_ero, seg_maths_thr_per_axis, align_affines_between_mask_and_input, align_input_slice_with_predicted_array, align_input_image_affine_mask_affine_per_axis
-from data_transformation import convert_image
 import uuid
 
 from evalutils import SegmentationAlgorithm
@@ -38,9 +37,9 @@ class SimpleNet(nn.Module):
 class Toothfairy_algorithm(SegmentationAlgorithm):
     def __init__(self):
         super().__init__(
-            output_file=Path('/output/results.json'),
-            input_path=Path('/input/images/cbct/'),
-            output_path=Path('/output/images/inferior-alveolar-canal/'),
+            output_file=Path('output/results.json'),
+            input_path=Path('test/images/cbct/'),
+            output_path=Path('output/images/inferior-alveolar-canal/'),
             validators=dict(
                 input_image=(
                     UniqueImagesValidator(),
@@ -49,7 +48,7 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
             ),
         )
 
-        self.models_dir = Path('/models/')
+        self.models_dir = Path('models/')
         self.targets = find_targets(input_path = self._input_path)
         if not self._output_path.exists():
             self._output_path.mkdir(parents=True)
@@ -57,14 +56,11 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
     def preprocess(self, input_image: str, unique_folder_name):
 
         input_nii, nii_filename = sitk2nii(input_image, wheretosave=join(self.working_dir, 'input', unique_folder_name))
-        rotated_image = rotTFimage(input_nii, nii_filename)
-
-        _, normalized_image = convert_image(image=rotated_image,
-                                            image_name = nii_filename)
+        _, rotated_image = rotTFimage(input_nii, nii_filename)
         axis = ["saggital", "coronal", "axial"]
         for ax in axis:
 
-            splitted=split(normalized_image, target_axis=ax)
+            splitted=split(rotated_image, target_axis=ax)
 
             path = join(splitted, ax)
             files = os.listdir(path)
@@ -75,7 +71,7 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
             else:
                 reshape(path, func = turn3dto2d)
 
-        return normalized_image.split('.nii.gz')[0]
+        return rotated_image.split('.nii.gz')[0]
     
     def postprocess(self, input_image: str):
         target_axes = ["saggital", "coronal", "axial"]
@@ -97,7 +93,7 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
 
             thresholded_image = seg_maths_thr_per_axis(merged_probability_arrays, axis=axis)
 
-            aligned_input_affine_mask_affine_axis = align_input_image_affine_mask_affine_per_axis(input_image=join(self.working_dir, 'input', input_image, 'image_normalized.nii.gz'), mask_axis=thresholded_image)
+            aligned_input_affine_mask_affine_axis = align_input_image_affine_mask_affine_per_axis(input_image=join(self.working_dir, 'input', input_image, 'image.nii.gz'), mask_axis=thresholded_image)
 
             list_of_thresholded_images.append(aligned_input_affine_mask_affine_axis)
         
@@ -132,7 +128,7 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
         datasets = ["Dataset002_saggital", "Dataset001_coronal", "Dataset003_axial"]
 
         unique_folder_name = uuid.uuid4().hex
-        self.working_dir = Path(f'/working/{unique_folder_name}')
+        self.working_dir = Path(f'working/{unique_folder_name}')
         if not self.working_dir.exists():
             os.makedirs(self.working_dir, exist_ok=True)
         
