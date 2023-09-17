@@ -114,7 +114,7 @@ COPY --chown=user:user postprocess.py /opt/app/
 COPY --chown=user:user data_transformation.py /opt/app/
 COPY --chown=user:user reshape_arrays.py /opt/app/
 COPY --chown=user:user utils.py /opt/app/
-COPY --chown=user:user test_performance.py /opt/app/
+COPY --chown=user:user voting_strategies.py /opt/app/
 
 
 ENTRYPOINT [ "python", "-m", "process" ]

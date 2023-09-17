@@ -5,6 +5,7 @@ import nibabel as nib
 from reshape_arrays import turn3dto2d, turn2dto3dcoronal, turn2dto3dsaggital
 from batchgenerators.utilities.file_and_folder_operations import join
 import sys
+from voting_strategies import voting
 
 
 ## This is just a few parametres that are used during the post processing
@@ -103,24 +104,30 @@ def align_input_image_affine_mask_affine_per_axis(input_image: str, mask_axis: s
     return mask_axis
 
 
+## This are the options -- voting strategies
+keys_voting_strategy = ['union_voting', 'majority_voting', 'unanimous', 'softmax_average']
+
 def seg_maths_add_all_thr_masks(list_of_thr_masks: list, image_name: str) -> str:
 
-    assert len(list_of_thr_masks) == 3, f"There were more masks than there should be. I found {len(list_of_thr_masks)}"
+    """
+    This is where you can select between softmax average, unanimous voting, majority voting, or union voting. 
+    Just change the parameter 'voting_strategy'.
+    """
 
-    command = f'seg_maths {list_of_thr_masks[0]} -add {list_of_thr_masks[1]} -add {list_of_thr_masks[2]} -thr 1.5 -bin {image_name}_final.nii.gz'
+    voted = voting(labels=list_of_thr_masks, voting_strategy='softmax_average', image_name=image_name)
+    voted_diled = seg_maths_dil_ero(voted)
+    aligned_affines = align_affines_between_mask_and_input(image_path=image_name.replace('output', 'input') + '/image.nii.gz', mask_path=voted_diled)
 
-    subprocess.run(command, shell=True)
-
-    return f'{image_name}_final.nii.gz'
+    return aligned_affines
 
 
 def seg_maths_dil_ero(final_mask: str) -> str:
 
-    command = f'seg_maths {final_mask} -dil 2 -ero 2 {final_mask.replace("_final.nii.gz", "_finalissim.nii.gz")}'
+    command = f'seg_maths {final_mask} -dil 2 -ero 2 {final_mask.replace(".nii.gz", "_finalissim.nii.gz")}'
 
     subprocess.run(command, shell=True)
 
-    return f'{final_mask.replace("_final.nii.gz", "_finalissim.nii.gz")}'
+    return f'{final_mask.replace(".nii.gz", "_finalissim.nii.gz")}'
 
 def check_affine_is_npeye(affine: np.ndarray) -> bool:
     return np.all(affine == np.eye(4))
@@ -143,10 +150,7 @@ def align_affines_between_mask_and_input(image_path: str, mask_path: str) -> np.
     
     if not mask_affine_is_eye:
         subprocess.run('fslcpgeom' + f' {image_path}' + f' {mask_path}', shell=True)
-        return mask_path
-
-    else:
-        return None
+    return mask_path
 
 if __name__ == "__main__":
     image1 = nib.load(sys.argv[1])
