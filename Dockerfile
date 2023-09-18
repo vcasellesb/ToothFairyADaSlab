@@ -7,6 +7,7 @@ RUN mkdir -p /opt/app /input /output /working \
 # RUN mkdir -p /output/images/inferior-alveolar-canal
 
 ENV ND_ENTRYPOINT="/neurodocker/startup.sh"
+ENV AM_I_IN_A_DOCKER_CONTAINER Yes
 RUN export ND_ENTRYPOINT="/neurodocker/startup.sh" \
     && apt-get update \
     && apt-get install -y --no-install-recommends \

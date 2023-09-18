@@ -17,6 +17,8 @@ from evalutils.validators import (
     UniqueImagesValidator, ## This is used to check that the images are themselves unique
 )
 
+I_AM_IN_DOCKER = os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False)
+
 def get_default_device():
     """ Set device """
     if torch.cuda.is_available():
@@ -37,9 +39,9 @@ class SimpleNet(nn.Module):
 class Toothfairy_algorithm(SegmentationAlgorithm):
     def __init__(self):
         super().__init__(
-            output_file=Path('/output/results.json'),
-            input_path=Path('/input/images/cbct/'),
-            output_path=Path('/output/images/inferior-alveolar-canal/'),
+            output_file=Path('/output/results.json') if I_AM_IN_DOCKER else Path('output/results.json'),
+            input_path=Path('/input/images/cbct/') if I_AM_IN_DOCKER else Path('test/images/cbct'),
+            output_path=Path('/output/images/inferior-alveolar-canal/') if I_AM_IN_DOCKER else Path('output/images/inferior-alveolar-canal/'),
             validators=dict(
                 input_image=(
                     UniqueImagesValidator(),
@@ -48,7 +50,7 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
             ),
         )
 
-        self.models_dir = Path('/models/')
+        self.models_dir = Path('/models/') if I_AM_IN_DOCKER else Path('models')
         self.targets = find_targets(input_path = self._input_path)
         if not self._output_path.exists():
             self._output_path.mkdir(parents=True)
@@ -119,7 +121,7 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
         datasets = ["Dataset002_saggital", "Dataset001_coronal", "Dataset003_axial"]
 
         unique_folder_name = uuid.uuid4().hex
-        self.working_dir = Path(f'/working/{unique_folder_name}')
+        self.working_dir = Path(f'/working/{unique_folder_name}') if I_AM_IN_DOCKER else Path(f'working/{unique_folder_name}')
         if not self.working_dir.exists():
             os.makedirs(self.working_dir, exist_ok=True)
         
