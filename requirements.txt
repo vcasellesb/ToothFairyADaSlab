@@ -69,7 +69,7 @@ pyyaml==6.0
     # via cookiecutter
 requests==2.32.2
     # via cookiecutter
-scikit-learn==1.2.2
+scikit-learn==1.5.0
     # via evalutils
 scipy==1.10.1
     # via
