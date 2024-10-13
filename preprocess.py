@@ -6,7 +6,7 @@ from typing import Union
 
 keys_split = {'axial': '-z', 'coronal': '-y', 'saggital': '-x'}
 
-def rotTFimage(filename: Union[nib.Nifti1Image, str], save_path: str) -> nib.Nifti1Image:
+def rotTFimage(filename: Union[nib.Nifti1Image, str], save_path: str=None) -> nib.Nifti1Image:
 
     """
     Function to rotate images to be able to segment them using our algorithm
@@ -18,7 +18,6 @@ def rotTFimage(filename: Union[nib.Nifti1Image, str], save_path: str) -> nib.Nif
     elif (isinstance(filename, str)) and filename.endswith('.nii.gz'):
         image = nib.load(filename)
 
-
     data=image.get_fdata()
     affine = image.affine
 
@@ -28,9 +27,11 @@ def rotTFimage(filename: Union[nib.Nifti1Image, str], save_path: str) -> nib.Nif
     
     rotated_img = nib.Nifti1Image(rotated2, affine=affine)
 
-    nib.save(rotated_img, save_path)
+    if save_path is not None:
+        nib.save(rotated_img, save_path)
+        return rotated_img, save_path
 
-    return rotated_img, save_path
+    return rotated_img
 
 
 def rot_back_to_original_orientation(filename: Union[nib.Nifti1Image, str]) -> np.ndarray:

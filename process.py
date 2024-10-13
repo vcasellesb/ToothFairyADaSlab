@@ -10,6 +10,7 @@ import os, time
 from reshape_arrays import reshape, turn3dto2d
 from postprocess import process_all_probabilty_arrays, merge_all_3d_probability_images, seg_maths_add_all_thr_masks, seg_maths_dil_ero, seg_maths_thr_per_axis, align_affines_between_mask_and_input, align_input_slice_with_predicted_array, align_input_image_affine_mask_affine_per_axis
 import uuid
+from test_performance import get_dict_results, mean_dice_score
 
 from evalutils import SegmentationAlgorithm
 from evalutils.validators import (
@@ -111,7 +112,7 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
         tile_step_size=0.5,
         use_gaussian=True,
         use_mirroring=True,
-        perform_everything_on_gpu=True,
+        perform_everything_on_device=True,
         device=get_default_device(),
         verbose=False,
         verbose_preprocessing=False,
@@ -152,6 +153,17 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
 
         return result
 
+    def test_performance(self, dir_labels_ground_truth):
+        labels_ai = [join(self._output_path, f) for f in os.listdir(self._output_path) if f.endswith('.mha')]
+        labels_ground_truth = [join(dir_labels_ground_truth, f) for f in os.listdir(dir_labels_ground_truth) if f.endswith('.mha')]
+        targets = self.targets
+
+        results_dict_test = get_dict_results(labels_ground_truth, labs_GT=labels_ai, targets=targets)
+        dice_score_final = mean_dice_score(results_dict=results_dict_test)
+
+        print(dice_score_final)
+        return dice_score_final
+
 if __name__ == "__main__":
 
     start_time = time.time()
@@ -161,3 +173,7 @@ if __name__ == "__main__":
     end_time = time.time()
 
     print("Elapsed time:", end_time - start_time)
+
+    if not I_AM_IN_DOCKER:
+        print('Evaluating...')
+        Toothfairy_algorithm().test_performance(dir_labels_ground_truth=os.path.abspath('ground_truths'))

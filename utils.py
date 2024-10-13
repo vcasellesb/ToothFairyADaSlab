@@ -7,7 +7,7 @@ import subprocess
 import sys
 import re
 from typing import Tuple
-from preprocess import rot_back_to_original_orientation
+from preprocess import rot_back_to_original_orientation, rotTFimage
 from shutil import rmtree, move
 
 def sitk2nii(sitk_image: sitk.Image, wheretosave: str) -> Tuple[nib.Nifti1Image, str]:
@@ -21,6 +21,7 @@ def sitk2nii(sitk_image: sitk.Image, wheretosave: str) -> Tuple[nib.Nifti1Image,
     image_array=sitk.GetArrayFromImage(sitk_image)
     new_file_name=join(wheretosave, f'image.nii.gz')
     nib_image = nib.Nifti1Image(image_array, np.eye(4))
+    nib_image, _ = rotTFimage(nib_image)
     nib.save(nib_image, new_file_name)
     return nib_image, new_file_name
 
@@ -100,10 +101,12 @@ def checkup(mask_sitk: sitk.Image, input_sitk) -> None:
     assert mask_array.shape == input_array.shape, "Different shape between input image and label"
 
 if __name__ == "__main__":
-    nii_filename = sys.argv[1]
-    image_nib = nib.load(nii_filename)
+    # nii_filename = sys.argv[1]
+    # image_nib = nib.load(nii_filename)
 
-    sitk_image = nii2sitk(image_nib)
-    sitk.WriteImage(sitk_image, sys.argv[2])
+    # sitk_image = nii2sitk(image_nib)
+    # sitk.WriteImage(sitk_image, sys.argv[2])
 
-    
+    sitk_filename = sys.argv[1]
+    image_sitk = sitk.ReadImage(sitk_filename)
+    sitk2nii(image_sitk, wheretosave='.')
