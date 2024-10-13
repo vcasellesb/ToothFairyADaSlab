@@ -2,7 +2,7 @@ from pathlib import Path
 import SimpleITK as sitk
 import torch
 import torch.nn as nn
-from batchgenerators.utilities.file_and_folder_operations import join
+from batchgenerators.utilities.file_and_folder_operations import join, save_json
 from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
 from preprocess import rotTFimage, split
 from utils import find_targets, sitk2nii, add_case_id, nii2sitk, checkup
@@ -10,7 +10,7 @@ import os, time
 from reshape_arrays import reshape, turn3dto2d
 from postprocess import process_all_probabilty_arrays, merge_all_3d_probability_images, seg_maths_add_all_thr_masks, seg_maths_dil_ero, seg_maths_thr_per_axis, align_affines_between_mask_and_input, align_input_slice_with_predicted_array, align_input_image_affine_mask_affine_per_axis
 import uuid
-from test_performance import get_dict_results, mean_dice_score
+from test_performance import get_dict_results, compute_mean_and_std
 
 from evalutils import SegmentationAlgorithm
 from evalutils.validators import (
@@ -156,13 +156,16 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
     def test_performance(self, dir_labels_ground_truth):
         labels_ai = [join(self._output_path, f) for f in os.listdir(self._output_path) if f.endswith('.mha')]
         labels_ground_truth = [join(dir_labels_ground_truth, f) for f in os.listdir(dir_labels_ground_truth) if f.endswith('.mha')]
-        targets = self.targets
 
-        results_dict_test = get_dict_results(labels_ground_truth, labs_GT=labels_ai, targets=targets)
-        dice_score_final = mean_dice_score(results_dict=results_dict_test)
-
-        print(dice_score_final)
-        return dice_score_final
+        # results will be dice, hd95 (I know this is not ok)
+        results = get_dict_results(labels_ground_truth, labs_GT=labels_ai)
+        json_name = '_dice.json'
+        for r in results:
+            r = compute_mean_and_std(r)
+            save_json(r, f'output/results{json_name}')
+            json_name = '_hd95.json'
+    
+        return results
 
 if __name__ == "__main__":
 

@@ -4,23 +4,21 @@ import numpy as np
 from batchgenerators.utilities.file_and_folder_operations import save_json
 from utils import getpatientid
 
-def dice_score(ground_truth_lab, ai_lab):
+def dice_score(ground_truth_lab: str, ai_lab: str) -> str:
 
     dice_score=subprocess.run('seg_stats ' + f' {ground_truth_lab}' + ' -d' + f' {ai_lab}',
                                shell=True, capture_output=True, text=True)
     return dice_score.stdout
 
-def compute_dice(gt, pred):
+def compute_dice(gt: sitk.Image, pred: sitk.Image) -> float:
     overlap_measure = sitk.LabelOverlapMeasuresImageFilter()
     overlap_measure.SetNumberOfThreads(1)
     overlap_measure.Execute(gt, pred)
     return overlap_measure.GetDiceCoefficient()
 
-def compute_hd95(gt: str, pred: str):
+def compute_hd95(gt: sitk.Image, pred: sitk.Image) -> float:
     # gt.SetSpacing(np.array([1, 1, 1]).astype(np.float64))
     # pred.SetSpacing(np.array([1, 1, 1]).astype(np.float64))
-    print(f'Evaluating gt: {gt}, prediction: {pred}')
-
 
     signed_distance_map = sitk.SignedMaurerDistanceMap(
         gt, squaredDistance=False, useImageSpacing=True
@@ -58,10 +56,11 @@ def compute_hd95(gt: str, pred: str):
     all_surface_distances = seg2ref_distances + ref2seg_distances
     return np.percentile(all_surface_distances, 95)
 
-def get_dict_results(labs_AI, labs_GT, targets) -> dict:
+def get_dict_results(labs_AI: list[str], 
+                     labs_GT:list[str]) -> tuple[dict, dict]:
+    
     labs_AI = sorted(labs_AI)
     labs_GT = sorted(labs_GT)
-    targets = sorted(targets)
     labs_AI.sort(key=len)
     labs_GT.sort(key=len)
 
@@ -80,11 +79,7 @@ def get_dict_results(labs_AI, labs_GT, targets) -> dict:
         results[getpatientid(AI)] = compute_dice(gt, pred)
         results_hd95[getpatientid(AI)] = str(np.round(compute_hd95(gt=gt, pred=pred), 4))
         
-    
-    save_json(results, 'output/results.json')
-    save_json(results_hd95, 'output/results_hd95.json')
-    
-    return results
+    return results, results_hd95
 
 def compute_mean_and_std(results_dict: dict) -> dict:
     results = np.array([float(r) for r in results_dict.values()])
