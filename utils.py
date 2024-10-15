@@ -21,7 +21,7 @@ def sitk2nii(sitk_image: sitk.Image, wheretosave: str) -> Tuple[nib.Nifti1Image,
     image_array=sitk.GetArrayFromImage(sitk_image)
     new_file_name=join(wheretosave, f'image.nii.gz')
     nib_image = nib.Nifti1Image(image_array, np.eye(4))
-    nib_image, _ = rotTFimage(nib_image)
+    nib_image = rotTFimage(nib_image)
     nib.save(nib_image, new_file_name)
     return nib_image, new_file_name
 
