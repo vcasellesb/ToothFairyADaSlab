@@ -107,14 +107,18 @@ def align_input_image_affine_mask_affine_per_axis(input_image: str, mask_axis: s
 ## This are the options -- voting strategies
 keys_voting_strategy = ['union_voting', 'majority_voting', 'unanimous', 'softmax_average']
 
-def seg_maths_add_all_thr_masks(list_of_thr_masks: list, image_name: str) -> str:
+def seg_maths_add_all_thr_masks(list_of_thr_masks: list, 
+                                image_name: str, 
+                                voting_strategy: str) -> str:
 
     """
     This is where you can select between softmax average, unanimous voting, majority voting, or union voting. 
     Just change the parameter 'voting_strategy'.
     """
 
-    voted = voting(labels=list_of_thr_masks, voting_strategy='softmax_average', image_name=image_name)
+    assert voting_strategy in keys_voting_strategy, f'Invalid voting strategy: {voting_strategy}'
+    
+    voted = voting(labels=list_of_thr_masks, voting_strategy=voting_strategy, image_name=image_name)
     voted_diled = seg_maths_dil_ero(voted)
     aligned_affines = align_affines_between_mask_and_input(image_path=image_name.replace('output', 'input') + '/image.nii.gz', mask_path=voted_diled)
 

@@ -100,7 +100,9 @@ class Toothfairy_algorithm(SegmentationAlgorithm):
 
             list_of_thresholded_images.append(aligned_input_affine_mask_affine_axis)
         
-        final_image = seg_maths_add_all_thr_masks(list_of_thresholded_images, image_name=join(self.working_dir, 'output', input_image))
+        final_image = seg_maths_add_all_thr_masks(list_of_thresholded_images, 
+                                                  image_name=join(self.working_dir, 'output', input_image),
+                                                  voting_strategy='majority_voting')
         
         sitk_image_final = nii2sitk(final_image)
         return sitk_image_final

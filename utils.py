@@ -10,7 +10,8 @@ from typing import Tuple
 from preprocess import rot_back_to_original_orientation, rotTFimage
 from shutil import rmtree, move
 
-def sitk2nii(sitk_image: sitk.Image, wheretosave: str) -> Tuple[nib.Nifti1Image, str]:
+def sitk2nii(sitk_image: sitk.Image, 
+             wheretosave: str=None) -> Tuple[nib.Nifti1Image, str]:
     """
     Reads sitk image and returns and saves a nii image
     """
@@ -19,11 +20,15 @@ def sitk2nii(sitk_image: sitk.Image, wheretosave: str) -> Tuple[nib.Nifti1Image,
         os.makedirs(wheretosave, exist_ok=True)
 
     image_array=sitk.GetArrayFromImage(sitk_image)
-    new_file_name=join(wheretosave, f'image.nii.gz')
     nib_image = nib.Nifti1Image(image_array, np.eye(4))
     nib_image = rotTFimage(nib_image)
-    nib.save(nib_image, new_file_name)
-    return nib_image, new_file_name
+
+    if wheretosave is not None:
+        new_file_name=join(wheretosave, f'image.nii.gz')
+        nib.save(nib_image, new_file_name)
+        return nib_image, new_file_name
+    
+    return nib_image
 
 def nii2sitk(input_image: str):
     """
@@ -50,14 +55,6 @@ def add_case_id(file: str) -> None:
     command = f'mv {file} {file.replace(".nii.gz", "_0000.nii.gz")}'
     subprocess.run(command, shell = True)
     return None
-
-def check_path(path):
-    files = []
-    for root, _, files in os.walk(path):
-        for file in files:
-            files.append(join(root, file))
-
-    return files
 
 def check_image_format(image):
     array = image.get_fdata()

@@ -20,8 +20,6 @@ def voting(labels: list, voting_strategy: str, image_name: str) -> str:
         labels = [vote_axis(lab) for lab in labels]
     assert len(labels) == 3, "More labels than there should be"
 
-    print(labels)
-
     thr = keys_voting_strategy[voting_strategy]
     command = f'seg_maths {labels[0]} -add {labels[1]} -add {labels[2]} -thr {thr} -bin {image_name}_{voting_strategy}.nii.gz'
 
