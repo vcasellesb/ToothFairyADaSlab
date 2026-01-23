@@ -91,7 +91,7 @@ tomli==2.0.1
     #   pyproject-hooks
 urllib3==2.6.3
     # via requests
-wheel==0.40.0
+wheel==0.46.2
     # via pip-tools
 torchio==0.18.92
 
