@@ -51,7 +51,7 @@ packaging==23.0
     # via build
 pandas==1.5.3
     # via evalutils
-pillow==10.3.0
+pillow==12.1.1
     # via imageio
 pip-tools==6.12.3
     # via evalutils
